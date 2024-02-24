@@ -31,7 +31,7 @@ namespace Praktos3
         int IndexForNextPlay;
         MediaPlayer mediaplayer = new MediaPlayer();
         private TimeSpan currentPosition;
-
+        public string PauseOrPlay = "Pause";
         public MainWindow()
         {
             InitializeComponent();
@@ -46,15 +46,24 @@ namespace Praktos3
                 {
                     while (true)
                     {
-                        Dispatcher.Invoke(() =>
+                        if(PauseOrPlay == "Pause")
                         {
-                            SongControl.Value = mediaplayer.Position.Ticks;
-                        });
-                        Thread.Sleep(100);
+                            Dispatcher.Invoke(() =>
+                            {
+                                SongControl.Value = mediaplayer.Position.Ticks;
+                            });
+                            Thread.Sleep(1000);
+                        }
+                        else if (PauseOrPlay == "Play")
+                        {
+                            Dispatcher.Invoke(() =>
+                            {
+                                SongControl.Value = currentPosition.Ticks;
+                            });
+                            Thread.Sleep(100);
+                        }
                     }
                 });
-
-                thread.IsBackground = true;
                 thread.Start();
             }
         }
@@ -82,7 +91,6 @@ namespace Praktos3
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-            string PauseOrPlay = "none";
             var button = (sender as Button)?.Content as PackIcon;
             if (button != null)
             {
@@ -301,7 +309,6 @@ namespace Praktos3
             {
                 if (mediaplayer.NaturalDuration.HasTimeSpan)
                 {
-                    SongControl.Value = 0;
                     long ticks = mediaplayer.NaturalDuration.TimeSpan.Ticks;
                     SongControl.Maximum = ticks;
                     double seconds = TimeSpan.FromTicks(ticks).TotalSeconds;
