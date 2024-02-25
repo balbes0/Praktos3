@@ -30,7 +30,8 @@ namespace Praktos3
         string PlayingNow;
         int IndexForNextPlay;
         MediaPlayer mediaplayer = new MediaPlayer();
-        private TimeSpan currentPosition;
+        private TimeSpan costile;
+        private TimeSpan costile2;
         public string PauseOrPlay = "Pause";
         public MainWindow()
         {
@@ -46,29 +47,22 @@ namespace Praktos3
                 {
                     while (true)
                     {
-                        if(PauseOrPlay == "Pause")
+                        if (PauseOrPlay == "Pause")
                         {
                             Dispatcher.Invoke(() =>
                             {
-                                SongControl.Value = mediaplayer.Position.Ticks;
+                                costile = mediaplayer.Position;
+                                SongControl.Value = costile.Ticks;
                             });
-                            Thread.Sleep(1000);
                         }
-                        else if (PauseOrPlay == "Play")
-                        {
-                            Dispatcher.Invoke(() =>
-                            {
-                                SongControl.Value = currentPosition.Ticks;
-                            });
-                            Thread.Sleep(100);
-                        }
+                        Thread.Sleep(1000);
                     }
                 });
                 thread.Start();
             }
         }
 
-        private void AutoPlayNextSound(object sender, EventArgs e)
+        private void AutoPlayNextSound(object sender, EventArgs e) //автопроигрывание
         {
             if (loop == false)
             {
@@ -89,7 +83,7 @@ namespace Praktos3
             }
         }
 
-        private void Button_Click(object sender, RoutedEventArgs e)
+        private void Button_Click(object sender, RoutedEventArgs e) //кнопка старт-стоп
         {
             var button = (sender as Button)?.Content as PackIcon;
             if (button != null)
@@ -107,17 +101,17 @@ namespace Praktos3
             }
             if (PauseOrPlay == "Play")
             {
-                currentPosition = mediaplayer.Position;
+                SongControl.Value = costile.Ticks;
                 mediaplayer.Stop();
             }
             else
             {
-                mediaplayer.Position = currentPosition;
+                mediaplayer.Position = new TimeSpan(Convert.ToInt64(SongControl.Value));
                 mediaplayer.Play();
             }
         }
 
-        private void RepeatButton_Click(object sender, RoutedEventArgs e)
+        private void RepeatButton_Click(object sender, RoutedEventArgs e) //кнопка повтора
         {
             var button = (sender as Button)?.Content as PackIcon;
             if (button != null)
@@ -135,7 +129,7 @@ namespace Praktos3
             }
         }
 
-        private void ShuffleButton_Click(object sender, RoutedEventArgs e)
+        private void ShuffleButton_Click(object sender, RoutedEventArgs e) //кнопка перемешки
         {
             var packIcon = (sender as Button)?.Content as PackIcon;
             if (packIcon != null)
@@ -166,7 +160,7 @@ namespace Praktos3
         }
 
 
-        private void OpenFolderWithSongs_Click(object sender, RoutedEventArgs e)
+        private void OpenFolderWithSongs_Click(object sender, RoutedEventArgs e) //кнопка открытия песен
         {
             CommonOpenFileDialog dialog = new CommonOpenFileDialog { IsFolderPicker = true };
             var result = dialog.ShowDialog();
@@ -198,7 +192,7 @@ namespace Praktos3
             }
         }
 
-        private void ListSongs_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void ListSongs_SelectionChanged(object sender, SelectionChangedEventArgs e) 
         {
             string selected = ListSongs.SelectedItem.ToString();
             NameOfSong.Content = selected;
@@ -216,7 +210,7 @@ namespace Praktos3
             }
         }
 
-        private void SkipNext_Click(object sender, RoutedEventArgs e)
+        private void SkipNext_Click(object sender, RoutedEventArgs e) //след песня
         {
             foreach (string item in files)
             {
@@ -248,7 +242,7 @@ namespace Praktos3
                 }
             }
         }
-        private void SkipPrevious_Click(object sender, RoutedEventArgs e)
+        private void SkipPrevious_Click(object sender, RoutedEventArgs e) //пред песня
         {
             foreach (string item in files)
             {
@@ -298,7 +292,7 @@ namespace Praktos3
         }
 
 
-        private void ListeningHistoryButton_Click(object sender, RoutedEventArgs e)
+        private void ListeningHistoryButton_Click(object sender, RoutedEventArgs e) //окно с историем прослушивания
         {
             ListeningHistory listeningHistoryWindow = new ListeningHistory(ListeningHistory);
             listeningHistoryWindow.Show();
@@ -309,6 +303,7 @@ namespace Praktos3
             {
                 if (mediaplayer.NaturalDuration.HasTimeSpan)
                 {
+                    PauseOrPlay = "Pause";
                     long ticks = mediaplayer.NaturalDuration.TimeSpan.Ticks;
                     SongControl.Maximum = ticks;
                     double seconds = TimeSpan.FromTicks(ticks).TotalSeconds;
@@ -329,6 +324,10 @@ namespace Praktos3
                 double seconds = TimeSpan.FromTicks(mediaplayer.Position.Ticks).TotalSeconds;
                 string formattedTime = TimeSpan.FromSeconds(seconds).ToString(@"mm\:ss");
                 StartTimeCode.Content = formattedTime;
+            }
+            else
+            {
+                costile = new TimeSpan(Convert.ToInt64(SongControl.Value));
             }
         }
     }
