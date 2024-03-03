@@ -54,7 +54,7 @@ namespace Praktos3
                                 SongControl.Value = slidervalue.Ticks;
                             });
                         }
-                        Thread.Sleep(1000);
+                        Thread.Sleep(100);
                     }
                 });
                 thread.Start();
@@ -189,6 +189,7 @@ namespace Praktos3
                 unshuffledList = files;
                 if(files.Count > 0)
                 {
+                    GridVisibility.Visibility = Visibility.Visible;
                     List<string> fileNames = new List<string>();
                     foreach (string file in files)
                     {
@@ -291,6 +292,10 @@ namespace Praktos3
             if (VolumeControl.Value <= 0.33)
             {
                 Volume.Kind = PackIconKind.VolumeLow;
+            }
+            if (VolumeControl.Value == 0)
+            {
+                Volume.Kind |= PackIconKind.VolumeOff;
             }
         }
 

@@ -20,7 +20,7 @@
                 <ColumnDefinition Width="230*"/>
             </Grid.ColumnDefinitions>
             <Label x:Name="SongName" Grid.Column="0" VerticalAlignment="Center" HorizontalContentAlignment="Left" VerticalContentAlignment="Center" Height="26" Margin="10,0,10,0" Foreground="DarkGray" Content=""/>
-            <Grid Grid.Column="1">
+            <Grid Grid.Column="1" Visibility="Hidden" x:Name="GridVisibility">
                 <Grid.RowDefinitions>
                     <RowDefinition/>
                     <RowDefinition/>
