@@ -19,7 +19,7 @@
                 <ColumnDefinition Width="350*"/>
                 <ColumnDefinition Width="230*"/>
             </Grid.ColumnDefinitions>
-            <Label x:Name="NameOfSong" Grid.Column="0" VerticalAlignment="Center" HorizontalContentAlignment="Left" VerticalContentAlignment="Center" Height="26" Margin="10,0,10,0" Foreground="DarkGray" Content=""/>
+            <Label x:Name="SongName" Grid.Column="0" VerticalAlignment="Center" HorizontalContentAlignment="Left" VerticalContentAlignment="Center" Height="26" Margin="10,0,10,0" Foreground="DarkGray" Content=""/>
             <Grid Grid.Column="1">
                 <Grid.RowDefinitions>
                     <RowDefinition/>

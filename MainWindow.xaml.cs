@@ -25,18 +25,17 @@ namespace Praktos3
         bool loop = false;
         List<string> ListeningHistory = new List<string>();
         List<string> files = new List<string>();
-        List<string> backfiles = new List<string>();
+        List<string> unshuffledList = new List<string>();
         Random random = new Random();
         string PlayingNow;
         int IndexForNextPlay;
         MediaPlayer mediaplayer = new MediaPlayer();
-        private TimeSpan costile;
-        private TimeSpan costile2;
+        private TimeSpan slidervalue;
         public string PauseOrPlay = "Pause";
         public MainWindow()
         {
             InitializeComponent();
-            mediaplayer.MediaEnded += AutoPlayNextSound;
+            mediaplayer.MediaEnded += AutoPlayNextSong;
             mediaplayer.MediaOpened += MediaPlayer_MediaOpened;
         }
         private void MediaPlayer_MediaOpened(object sender, EventArgs e)
@@ -51,8 +50,8 @@ namespace Praktos3
                         {
                             Dispatcher.Invoke(() =>
                             {
-                                costile = mediaplayer.Position;
-                                SongControl.Value = costile.Ticks;
+                                slidervalue = mediaplayer.Position;
+                                SongControl.Value = slidervalue.Ticks;
                             });
                         }
                         Thread.Sleep(1000);
@@ -62,24 +61,44 @@ namespace Praktos3
             }
         }
 
-        private void AutoPlayNextSound(object sender, EventArgs e) //автопроигрывание
+        public void Play()
         {
+            mediaplayer.Open(new Uri(files[IndexForNextPlay]));
+            mediaplayer.Play();
+            PlayingNow = files[IndexForNextPlay];
+            SongName.Content = System.IO.Path.GetFileName(files[IndexForNextPlay]);
+            ListeningHistory.Add(ListSongs.Items[IndexForNextPlay].ToString());
+            SetPositionSlider();
+        }
+
+        private void AutoPlayNextSong(object sender, EventArgs e) //автопроигрывание
+        {
+            SongControl.Value = 0;
+
             if (loop == false)
             {
-                IndexForNextPlay += 1;
-                mediaplayer.Open(new Uri(files[IndexForNextPlay]));
-                mediaplayer.Play();
-                NameOfSong.Content = System.IO.Path.GetFileName(files[IndexForNextPlay]);
-                ListeningHistory.Add(ListSongs.Items[IndexForNextPlay].ToString());
-                SetPositionSlider();
+                foreach (string item in files)
+                {
+                    if (item.Contains(PlayingNow))
+                    {
+                        if (files.IndexOf(item) + 1 == files.Count)
+                        {
+                            IndexForNextPlay = 0;
+                            Play();
+                            break;
+                        }
+                        else
+                        {
+                            IndexForNextPlay = files.IndexOf(PlayingNow) + 1;
+                            Play();
+                            break;
+                        }
+                    }
+                }
             }
-            else if (loop == true)
+            else
             {
-                mediaplayer.Open(new Uri(files[IndexForNextPlay]));
-                mediaplayer.Play();
-                NameOfSong.Content = System.IO.Path.GetFileName(files[IndexForNextPlay]);
-                ListeningHistory.Add(ListSongs.Items[IndexForNextPlay].ToString());
-                SetPositionSlider();
+                Play();
             }
         }
 
@@ -101,7 +120,7 @@ namespace Praktos3
             }
             if (PauseOrPlay == "Play")
             {
-                SongControl.Value = costile.Ticks;
+                SongControl.Value = slidervalue.Ticks;
                 mediaplayer.Stop();
             }
             else
@@ -137,7 +156,7 @@ namespace Praktos3
                 if (packIcon.Kind == PackIconKind.Shuffle)
                 {
                     packIcon.Kind = PackIconKind.ShuffleDisabled;
-                    files = backfiles;
+                    files = unshuffledList;
                 }
                 else
                 {
@@ -160,14 +179,14 @@ namespace Praktos3
         }
 
 
-        private void OpenFolderWithSongs_Click(object sender, RoutedEventArgs e) //кнопка открытия песен
+        private void OpenFolderWithSongs_Click(object sender, RoutedEventArgs e) //выбор папки с песнями
         {
             CommonOpenFileDialog dialog = new CommonOpenFileDialog { IsFolderPicker = true };
             var result = dialog.ShowDialog();
             if (result == CommonFileDialogResult.Ok)
             {
                 files = Directory.GetFiles(dialog.FileName, "*.mp3").ToList();
-                backfiles = files;
+                unshuffledList = files;
                 if(files.Count > 0)
                 {
                     List<string> fileNames = new List<string>();
@@ -180,7 +199,7 @@ namespace Praktos3
                     mediaplayer.Open(new Uri(files[0]));
                     mediaplayer.Play();
                     PlayPauseIcon.Kind = PackIconKind.Pause;
-                    NameOfSong.Content = System.IO.Path.GetFileName(files[0]);
+                    SongName.Content = System.IO.Path.GetFileName(files[0]);
                     PlayingNow = files[0];
                     ListeningHistory.Add(fileNames[0]);
                     SetPositionSlider();
@@ -195,7 +214,7 @@ namespace Praktos3
         private void ListSongs_SelectionChanged(object sender, SelectionChangedEventArgs e) 
         {
             string selected = ListSongs.SelectedItem.ToString();
-            NameOfSong.Content = selected;
+            SongName.Content = selected;
             foreach (string item in files)
             {
                 if (item.Contains(selected))
@@ -216,27 +235,19 @@ namespace Praktos3
             {
                 if(item.Contains(PlayingNow))
                 {
+                    Repeat.Kind = PackIconKind.RepeatOff;
+                    loop = false;
                     PlayPauseIcon.Kind = PackIconKind.Pause;
                     if (files.IndexOf(item)+1 >= files.Count)
                     {
                         IndexForNextPlay = 0;
-                        mediaplayer.Open(new Uri(files[IndexForNextPlay]));
-                        mediaplayer.Play();
-                        PlayingNow = files[IndexForNextPlay];
-                        NameOfSong.Content = System.IO.Path.GetFileName(files[IndexForNextPlay]);
-                        ListeningHistory.Add(ListSongs.Items[IndexForNextPlay].ToString());
-                        SetPositionSlider();
+                        Play();
                         break;
                     }
                     else
                     {
                         IndexForNextPlay = files.IndexOf(PlayingNow) + 1;
-                        mediaplayer.Open(new Uri(files[IndexForNextPlay]));
-                        mediaplayer.Play();
-                        PlayingNow = files[IndexForNextPlay];
-                        NameOfSong.Content = System.IO.Path.GetFileName(files[IndexForNextPlay]);
-                        ListeningHistory.Add(ListSongs.Items[IndexForNextPlay].ToString());
-                        SetPositionSlider();
+                        Play();
                         break;
                     }
                 }
@@ -248,27 +259,19 @@ namespace Praktos3
             {
                 if (item.Contains(PlayingNow))
                 {
+                    Repeat.Kind = PackIconKind.RepeatOff;
+                    loop = false;
                     PlayPauseIcon.Kind = PackIconKind.Pause;
                     if (files.IndexOf(item) - 1 <= 0)
                     {
                         IndexForNextPlay = 0;
-                        mediaplayer.Open(new Uri(files[IndexForNextPlay]));
-                        mediaplayer.Play();
-                        PlayingNow = files[IndexForNextPlay];
-                        NameOfSong.Content = System.IO.Path.GetFileName(files[IndexForNextPlay]);
-                        ListeningHistory.Add(ListSongs.Items[IndexForNextPlay].ToString());
-                        SetPositionSlider();
+                        Play();
                         break;
                     }
                     else
                     {
                         IndexForNextPlay = files.IndexOf(PlayingNow) - 1;
-                        mediaplayer.Open(new Uri(files[IndexForNextPlay]));
-                        mediaplayer.Play();
-                        PlayingNow = files[IndexForNextPlay];
-                        NameOfSong.Content = System.IO.Path.GetFileName(files[IndexForNextPlay]);
-                        ListeningHistory.Add(ListSongs.Items[IndexForNextPlay].ToString());
-                        SetPositionSlider();
+                        Play();
                         break;
                     }
                 }
@@ -327,7 +330,7 @@ namespace Praktos3
             }
             else
             {
-                costile = new TimeSpan(Convert.ToInt64(SongControl.Value));
+                slidervalue = new TimeSpan(Convert.ToInt64(SongControl.Value));
             }
         }
     }
