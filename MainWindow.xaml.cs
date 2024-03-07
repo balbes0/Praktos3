@@ -298,12 +298,27 @@ namespace Praktos3
                 Volume.Kind |= PackIconKind.VolumeOff;
             }
         }
-
-
         private void ListeningHistoryButton_Click(object sender, RoutedEventArgs e) //окно с историем прослушивания
         {
             ListeningHistory listeningHistoryWindow = new ListeningHistory(ListeningHistory);
+            listeningHistoryWindow.ItemSelected += ListeningHistoryWindow_ItemSelected;
             listeningHistoryWindow.Show();
+        }
+        private void ListeningHistoryWindow_ItemSelected(object sender, string selectedItem)
+        {
+            SongName.Content = selectedItem;
+            foreach (string item in files)
+            {
+                if (item.Contains(selectedItem))
+                {
+                    PlayPauseIcon.Kind = PackIconKind.Pause;
+                    mediaplayer.Open(new Uri(item));
+                    mediaplayer.Play();
+                    PlayingNow = item;
+                    ListeningHistory.Add(selectedItem);
+                    SetPositionSlider();
+                }
+            }
         }
         private void SetPositionSlider()
         {

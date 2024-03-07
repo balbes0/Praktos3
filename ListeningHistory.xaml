@@ -19,6 +19,6 @@
   IsEnabled="{Binding DataContext.ControlsEnabled, RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}" Click="DeleteHistory_Click" />
         <Label Foreground="DarkGray" VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="18" Height="31" Width="220">История прослушиваний:</Label>
         <ListBox x:Name="ListeningHistory1" Background="#111111" Foreground="DarkGray"
-IsEnabled="{Binding IsChecked, ElementName=EnableListBox}" IsSynchronizedWithCurrentItem="False" Margin="0,4,0,0" Grid.Row="1"/>
+IsEnabled="{Binding IsChecked, ElementName=EnableListBox}" IsSynchronizedWithCurrentItem="False" Margin="0,4,0,0" Grid.Row="1" SelectionChanged="ListeningHistory1_SelectionChanged"/>
     </Grid>
 </Window>
